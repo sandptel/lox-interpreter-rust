@@ -69,6 +69,8 @@ fn identify_token(ch: &char) -> (String, Option<&str>) {
         '.' => "DOT",
         ',' => "COMMA",
         '+' => "PLUS",
+        '-' => "MINUS",
+        ';' => "SEMICOLON",
         t => &format!("Unknown Command {}", t),
     };
     (token_name.to_string(), None)
