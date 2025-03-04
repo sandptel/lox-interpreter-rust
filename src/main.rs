@@ -63,6 +63,8 @@ fn identify_token(ch: &char) -> (String, Option<&str>) {
     let mut token_name = match ch {
         '(' => "LEFT_PAREN",
         ')' => "RIGHT_PAREN",
+        '{' => "LEFT_BRACE",
+        '}' => "RIGHT_BRACE",
         t => "Unknown Command: {t}",
     };
     (token_name.to_string(), None)
