@@ -14,24 +14,69 @@ fn main() {
 
     match command.as_str() {
         "tokenize" => {
-            // You can use print statements as follows for debugging, they'll be visible when running tests.
-            writeln!(io::stderr(), "Logs from your program will appear here!").unwrap();
-
             let file_contents = fs::read_to_string(filename).unwrap_or_else(|_| {
                 writeln!(io::stderr(), "Failed to read file {}", filename).unwrap();
                 String::new()
             });
-
-            // Uncomment this block to pass the first stage
-            if !file_contents.is_empty() {
-                panic!("Scanner not implemented");
-            } else {
-                println!("EOF  null"); // Placeholder, remove this line when implementing the scanner
-            }
+            tokenize(&file_contents);
+        }
+        "repl" => {
+            eprint!("lox repl --> ");
+            repl();
         }
         _ => {
             writeln!(io::stderr(), "Unknown command: {}", command).unwrap();
             return;
         }
+    }
+}
+
+// enum Token{
+//     Eof,
+//     left_paren,
+//     light_paren,
+// }
+
+fn tokenize(input: &String) {
+    // Uncomment this block to pass the first stage
+    // if input.is_empty() {
+    //     println!("EOF  null");
+    // }
+    let mut tokens = input.chars();
+    loop {
+        {
+            match tokens.next() {
+                Some(t) => {
+                    let token = identify_token(&t);
+                    println!("{} {} {}",token.0,t,token.1.unwrap_or("null"));
+                }
+                None => {
+                    println!("EOF  null");
+                    break;
+                }
+            }
+        }
+    }
+}
+
+fn identify_token(ch: &char) -> (String, Option<&str>) {
+    let mut token_name = match ch {
+        '(' => "LEFT_PAREN",
+        ')' => "RIGHT_PAREN",
+        t => "Unknown Command: {t}",
+    };
+    (token_name.to_string(), None)
+}
+
+fn scanner(input: &String) {}
+
+fn repl() {
+    let mut input = String::new();
+    loop {
+        io::stdin()
+            .read_line(&mut input)
+            .expect("failed to readline");
+        tokenize(&input);
+        println!("{}", input);
     }
 }
