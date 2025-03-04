@@ -65,7 +65,11 @@ fn identify_token(ch: &char) -> (String, Option<&str>) {
         ')' => "RIGHT_PAREN",
         '{' => "LEFT_BRACE",
         '}' => "RIGHT_BRACE",
-        t => "Unknown Command: {t}",
+        '*' => "STAR",
+        '.' => "DOT",
+        ',' => "COMMA",
+        '+' => "PLUS",
+        t => &format!("Unknown Command {}", t),
     };
     (token_name.to_string(), None)
 }
@@ -82,3 +86,13 @@ fn repl() {
         println!("{}", input);
     }
 }
+
+
+
+// #[test]
+
+// fn test_1()
+// {
+//     assert_eq!("")
+// }
+
