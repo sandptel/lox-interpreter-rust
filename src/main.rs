@@ -1,6 +1,7 @@
 use std::env;
 use std::fs;
 use std::io::{self, Write};
+use std::str::Chars;
 
 #[derive(PartialEq, Debug,Clone, Copy)]
 enum Token {
@@ -20,7 +21,7 @@ impl Token {
     fn value(self) -> Option<String> {
         None
     }
-    fn name(self) -> String {
+    fn name(self) -> Option<String> {
         let name = match self {
             Token::Atom(ch) => {
                 todo!()
@@ -37,13 +38,13 @@ impl Token {
                     '+' => "PLUS",
                     '-' => "MINUS",
                     ';' => "SEMICOLON",
-                    t => &format!("Unknown Command {}", t),
+                    _ => return None,
                 };
                 token_name.to_string()
             }
             Token::Eof => "EOF".to_string(),
         };
-        name
+        Some(name)
     }
 }
 struct Lexer {
@@ -85,17 +86,32 @@ fn print_tokens(input: &String) {
     //     println!("EOF  null");
     // }
     let mut tokens = input.chars();
+    let mut line_number = 1;
     loop {
         {
             match tokens.next() {
                 Some(t) => {
+                    if t== '\n'
+                    {
+                        line_number=line_number+1;
+                        continue;
+                    };
                     let token = Token::new(t);
-                    println!(
-                        "{} {} {}",
-                        token.name(),
-                        t,
-                        token.value().unwrap_or("null".to_string())
-                    );
+                    let name = token.name();
+                    let value = token.value();
+                    match name
+                    {
+                        None=> println!("[line {}] Error: Unexpected character: {}",line_number,t),
+                        Some(name) =>
+                        {
+                            println!(
+                                "{} {} {}",
+                                name,
+                                t,
+                                value.unwrap_or("null".to_string())
+                            );
+                        }
+                    }
                 }
                 None => {
                     println!("EOF  null");
@@ -122,7 +138,7 @@ fn repl() {
 #[test]
 
 fn test_name() {
-    assert_eq!("LEFT_PAREN", Token::Op('(').name())
+    assert_eq!("LEFT_PAREN", Token::Op('(').name().unwrap())
 }
 
 #[test]
@@ -137,3 +153,7 @@ fn test_new() {
     assert_eq!(Token::new('A'), Token::Atom('A'));
     assert_eq!(Token::new('+'), Token::Op('+'));
 }
+
+// fn test_print_tokens() {
+    
+// }
