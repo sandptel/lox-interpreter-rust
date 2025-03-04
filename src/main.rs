@@ -2,6 +2,54 @@ use std::env;
 use std::fs;
 use std::io::{self, Write};
 
+#[derive(PartialEq, Debug,Clone, Copy)]
+enum Token {
+    Atom(char),
+    Op(char),
+    Eof,
+}
+
+impl Token {
+    fn new(c: char) -> Self {
+        match c {
+            '0'..='9' | 'a'..='z' | 'A'..='Z' => Token::Atom(c),
+            _ => Token::Op(c),
+        }
+    }
+
+    fn value(self) -> Option<String> {
+        None
+    }
+    fn name(self) -> String {
+        let name = match self {
+            Token::Atom(ch) => {
+                todo!()
+            }
+            Token::Op(ch) => {
+                let mut token_name = match ch {
+                    '(' => "LEFT_PAREN",
+                    ')' => "RIGHT_PAREN",
+                    '{' => "LEFT_BRACE",
+                    '}' => "RIGHT_BRACE",
+                    '*' => "STAR",
+                    '.' => "DOT",
+                    ',' => "COMMA",
+                    '+' => "PLUS",
+                    '-' => "MINUS",
+                    ';' => "SEMICOLON",
+                    t => &format!("Unknown Command {}", t),
+                };
+                token_name.to_string()
+            }
+            Token::Eof => "EOF".to_string(),
+        };
+        name
+    }
+}
+struct Lexer {
+    tokens: Vec<Token>,
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 3 {
@@ -18,7 +66,7 @@ fn main() {
                 writeln!(io::stderr(), "Failed to read file {}", filename).unwrap();
                 String::new()
             });
-            tokenize(&file_contents);
+            print_tokens(&file_contents);
         }
         "repl" => {
             eprint!("lox repl --> ");
@@ -31,13 +79,7 @@ fn main() {
     }
 }
 
-// enum Token{
-//     Eof,
-//     left_paren,
-//     light_paren,
-// }
-
-fn tokenize(input: &String) {
+fn print_tokens(input: &String) {
     // Uncomment this block to pass the first stage
     // if input.is_empty() {
     //     println!("EOF  null");
@@ -47,8 +89,13 @@ fn tokenize(input: &String) {
         {
             match tokens.next() {
                 Some(t) => {
-                    let token = identify_token(&t);
-                    println!("{} {} {}",token.0,t,token.1.unwrap_or("null"));
+                    let token = Token::new(t);
+                    println!(
+                        "{} {} {}",
+                        token.name(),
+                        t,
+                        token.value().unwrap_or("null".to_string())
+                    );
                 }
                 None => {
                     println!("EOF  null");
@@ -59,23 +106,6 @@ fn tokenize(input: &String) {
     }
 }
 
-fn identify_token(ch: &char) -> (String, Option<&str>) {
-    let mut token_name = match ch {
-        '(' => "LEFT_PAREN",
-        ')' => "RIGHT_PAREN",
-        '{' => "LEFT_BRACE",
-        '}' => "RIGHT_BRACE",
-        '*' => "STAR",
-        '.' => "DOT",
-        ',' => "COMMA",
-        '+' => "PLUS",
-        '-' => "MINUS",
-        ';' => "SEMICOLON",
-        t => &format!("Unknown Command {}", t),
-    };
-    (token_name.to_string(), None)
-}
-
 fn scanner(input: &String) {}
 
 fn repl() {
@@ -84,17 +114,26 @@ fn repl() {
         io::stdin()
             .read_line(&mut input)
             .expect("failed to readline");
-        tokenize(&input);
+        print_tokens(&input);
         println!("{}", input);
     }
 }
 
+#[test]
 
+fn test_name() {
+    assert_eq!("LEFT_PAREN", Token::Op('(').name())
+}
 
-// #[test]
+#[test]
 
-// fn test_1()
-// {
-//     assert_eq!("")
-// }
+fn test_value() {
+    assert_eq!("null", Token::Op('(').value().unwrap_or("null".to_string()))
+}
 
+#[test]
+
+fn test_new() {
+    assert_eq!(Token::new('A'), Token::Atom('A'));
+    assert_eq!(Token::new('+'), Token::Op('+'));
+}
