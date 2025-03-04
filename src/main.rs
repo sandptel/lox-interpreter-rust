@@ -1,9 +1,13 @@
 use std::env;
 use std::fs;
 use std::io::{self, Write};
+use std::process;
+use std::process::id;
 use std::str::Chars;
 
-#[derive(PartialEq, Debug,Clone, Copy)]
+static mut EXIT_CODE: i32 = 0;
+
+#[derive(PartialEq, Debug, Clone, Copy)]
 enum Token {
     Atom(char),
     Op(char),
@@ -78,6 +82,9 @@ fn main() {
             return;
         }
     }
+    unsafe {
+        process::exit(EXIT_CODE);
+    }
 }
 
 fn print_tokens(input: &String) {
@@ -87,39 +94,42 @@ fn print_tokens(input: &String) {
     // }
     let mut tokens = input.chars();
     let mut line_number = 1;
+    let mut error = String::new();
+    let mut identified= String::new();
     loop {
         {
             match tokens.next() {
                 Some(t) => {
-                    if t== '\n'
-                    {
-                        line_number=line_number+1;
+                    if t == '\n' {
+                        line_number = line_number + 1;
                         continue;
                     };
                     let token = Token::new(t);
                     let name = token.name();
                     let value = token.value();
-                    match name
-                    {
-                        None=> println!("[line {}] Error: Unexpected character: {}",line_number,t),
-                        Some(name) =>
-                        {
-                            println!(
-                                "{} {} {}",
-                                name,
-                                t,
-                                value.unwrap_or("null".to_string())
-                            );
+                    // let 
+                    match name {
+                        None => {
+                            unsafe {
+                                EXIT_CODE = 65;
+                            }
+                            error.push_str(&format!("[line {}] Error: Unexpected character: {}\n", line_number, t));
                         }
-                    }
+                        Some(name) => {
+                            identified.push_str(&format!("{} {} {}\n", name, t, value.unwrap_or("null".to_string())));
+                            // identified.push('\n');
+                        }
+                    };
                 }
                 None => {
-                    println!("EOF  null");
+                    identified.push_str(&format!("EOF  null"));
                     break;
                 }
             }
         }
     }
+    eprint!("{}",error);
+    print!("{}",identified);
 }
 
 fn scanner(input: &String) {}
@@ -155,5 +165,5 @@ fn test_new() {
 }
 
 // fn test_print_tokens() {
-    
+
 // }
