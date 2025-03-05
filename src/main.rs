@@ -42,6 +42,7 @@ impl Token {
                     '+' => "PLUS",
                     '-' => "MINUS",
                     ';' => "SEMICOLON",
+                    '=' => "EQUAL",
                     _ => return None,
                 };
                 token_name.to_string()
@@ -92,31 +93,46 @@ fn print_tokens(input: &String) {
     // if input.is_empty() {
     //     println!("EOF  null");
     // }
-    let mut tokens = input.chars();
+    let mut tokens = input.chars().peekable();
     let mut line_number = 1;
     let mut error = String::new();
-    let mut identified= String::new();
+    let mut identified = String::new();
     loop {
         {
             match tokens.next() {
-                Some(t) => {
+                Some(mut t) => {
                     if t == '\n' {
                         line_number = line_number + 1;
                         continue;
                     };
+                    let mut operator = String::new();
+                    operator.push(t);
                     let token = Token::new(t);
                     let name = token.name();
-                    let value = token.value();
-                    // let 
+                    let value = token.value().unwrap_or("null".to_string());
+                    // let
                     match name {
                         None => {
                             unsafe {
                                 EXIT_CODE = 65;
                             }
-                            error.push_str(&format!("[line {}] Error: Unexpected character: {}\n", line_number, t));
+                            error.push_str(&format!(
+                                "[line {}] Error: Unexpected character: {}\n",
+                                line_number, t
+                            ));
                         }
-                        Some(name) => {
-                            identified.push_str(&format!("{} {} {}\n", name, t, value.unwrap_or("null".to_string())));
+                        Some(mut name) => {
+                            if name == "EQUAL" {
+                                match tokens.peek() {
+                                    Some('=') => {
+                                        name = "EQUAL_EQUAL".to_string();
+                                        // tokens.next();
+                                        operator.push(tokens.next().unwrap());
+                                    }
+                                    _ => {},
+                                }
+                            };
+                            identified.push_str(&format!("{} {} {}\n", name, operator, value));
                             // identified.push('\n');
                         }
                     };
@@ -128,8 +144,8 @@ fn print_tokens(input: &String) {
             }
         }
     }
-    eprint!("{}",error);
-    print!("{}",identified);
+    eprint!("{}", error);
+    print!("{}", identified);
 }
 
 fn scanner(input: &String) {}
