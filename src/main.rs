@@ -17,7 +17,7 @@ enum Token {
 impl Token {
     fn new(c: char) -> Self {
         match c {
-            '0'..='9' | 'a'..='z' | 'A'..='Z' => Token::Atom(c),
+            '0'..='9' | 'a'..='z' | 'A'..='Z' | '\x20'| '\t'=> Token::Atom(c),
             _ => Token::Op(c),
         }
     }
@@ -28,7 +28,7 @@ impl Token {
     fn name(self) -> Option<String> {
         let name = match self {
             Token::Atom(ch) => {
-                todo!()
+                "Atom Found".to_string()
             }
             Token::Op(ch) => {
                 let mut token_name = match ch {
@@ -134,8 +134,17 @@ fn print_tokens(input: &String) {
                                     }
                                 }
                                 (Some('/'), '/') => {
-                                    identified.push_str(&format!("EOF  null"));
-                                    break;
+                                    // identified.push_str(&format!("EOF  null"));
+                                    // break;
+                                    
+                                }
+                                (Some(_), '\t')=>
+                                {
+                                    continue;
+                                }
+                                (Some(_), '\x20')=>
+                                {
+                                    continue;
                                 }
                                 (_, _) => {}
                             }
