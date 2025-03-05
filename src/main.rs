@@ -44,6 +44,8 @@ impl Token {
                     ';' => "SEMICOLON",
                     '=' => "EQUAL",
                     '!' => "BANG",
+                    '<' => "LESS",
+                    '>' => "GREATER",
                     _ => return None,
                 };
                 token_name.to_string()
@@ -125,7 +127,7 @@ fn print_tokens(input: &String) {
                         Some(mut name) => {
                             match (tokens.peek(), t) {
                                 (Some('='), current) => {
-                                    if current == '=' || current == '!' {
+                                    if matches!(current, '=' | '!' | '>' | '<') {
                                         name = Token::new(current).name().unwrap() + "_EQUAL";
                                         operator.push(tokens.next().unwrap());
                                     }
