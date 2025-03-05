@@ -43,6 +43,7 @@ impl Token {
                     '-' => "MINUS",
                     ';' => "SEMICOLON",
                     '=' => "EQUAL",
+                    '!' => "BANG",
                     _ => return None,
                 };
                 token_name.to_string()
@@ -122,16 +123,15 @@ fn print_tokens(input: &String) {
                             ));
                         }
                         Some(mut name) => {
-                            if name == "EQUAL" {
-                                match tokens.peek() {
-                                    Some('=') => {
-                                        name = "EQUAL_EQUAL".to_string();
-                                        // tokens.next();
+                            match (tokens.peek(),t)
+                            {
+                                (Some('='),current)=>
+                                {
+                                        name = Token::new(current).name().unwrap()+ "_EQUAL";
                                         operator.push(tokens.next().unwrap());
-                                    }
-                                    _ => {},
-                                }
-                            };
+                                },
+                                (_,_)=>{}
+                            }
                             identified.push_str(&format!("{} {} {}\n", name, operator, value));
                             // identified.push('\n');
                         }
