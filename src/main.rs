@@ -123,14 +123,14 @@ fn print_tokens(input: &String) {
                             ));
                         }
                         Some(mut name) => {
-                            match (tokens.peek(),t)
-                            {
-                                (Some('='),current)=>
-                                {
-                                        name = Token::new(current).name().unwrap()+ "_EQUAL";
+                            match (tokens.peek(), t) {
+                                (Some('='), current) => {
+                                    if current == '=' || current == '!' {
+                                        name = Token::new(current).name().unwrap() + "_EQUAL";
                                         operator.push(tokens.next().unwrap());
-                                },
-                                (_,_)=>{}
+                                    }
+                                }
+                                (_, _) => {}
                             }
                             identified.push_str(&format!("{} {} {}\n", name, operator, value));
                             // identified.push('\n');
